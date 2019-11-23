@@ -6,6 +6,7 @@ import { useEva } from 'react-eva'
 import { ISchemaFormProps } from '../types'
 import { createSchemaFormActions } from '../shared/actions'
 import { getRegistry } from '../shared/registry'
+import { useEffects } from './useEffects';
 
 const useInternalSchemaForm = (props: ISchemaFormProps) => {
   const {
@@ -18,7 +19,6 @@ const useInternalSchemaForm = (props: ISchemaFormProps) => {
     value,
     initialValues,
     actions,
-    effects,
     onChange,
     onSubmit,
     onReset,
@@ -32,9 +32,13 @@ const useInternalSchemaForm = (props: ISchemaFormProps) => {
   const { implementActions } = useEva({
     actions
   })
+  const { effects } = useEffects(props);
   const registry = getRegistry()
   return {
-    form: useForm(props),
+    form: useForm({
+      ...props,
+      effects
+    }),
     formComponentProps,
     fields: {
       ...registry.fields,
