@@ -67,25 +67,28 @@ const schema = {
       "type": "string",
       "x-component": "inputnumber",
       "x-component-props": {
-        "hide": "{{root.value.username !== \"\" && root.value.password}}"
+        "hide": "{{root.value.username !== \"\" && root.value.password && root.value.age.subAge}}"
       },
-      // "properties": {
-      //   "subAge": {
-      //     "title": "subAge",
-      //     "type": "string",
-      //     "x-component-props": {
-      //       "hide": "{{root.value.username !== \"\"}}"
-      //     }
-      //   }
-      // },
+      "properties": {
+        "subAge": {
+          "title": "subAge",
+          "type": "string",
+          "x-props": {
+            "value": 100
+          },
+          // "x-component-props": {
+          //   "hide": "{{root.value.username !== \"\"}}"
+          // }
+        }
+      },
     },
     "password": {
       "title": "password",
       "type": "string",
       "x-component": "input",
-      "x-component-props": {
-        "placeholder": "Please Enter Password"
-      },
+      // "x-component-props": {
+      //   "placeholder": "Please Enter Password"
+      // },
       "x-rules": [{"required": true}]
     },
     // "Submit": {

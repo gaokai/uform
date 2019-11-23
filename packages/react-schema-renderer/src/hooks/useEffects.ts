@@ -53,10 +53,10 @@ function precomplieExpression(expressionStr) {
 
     // todo: deal repeat subscribeName
     const [reverseChainStrWithRoot, reverseChainStr] = result;
-    const [, subscribeName] = reverseChainStr.split('.');
+    const [, ...subscribeName] = reverseChainStr.split('.');
 
     complieResult.push({
-      subscribeName,
+      subscribeName: subscribeName.join('.'),
       subscribeParams: {
         expressStrPiece: reverseChainStrWithRoot,
         start: startIndex,
@@ -70,7 +70,27 @@ function precomplieExpression(expressionStr) {
 
 // @todo deal path, not only root.value.username
 function getValueByChain(chain, dataPool) {
-  let temp = dataPool[chain[0]];
+  let unserializeDataPool = {
+    ...dataPool,
+    'age.subAge': { value: 'test1', test2: 'test2' }
+  };
+
+  Object.keys(unserializeDataPool).forEach((path) => {
+    if (path.split('.').length > 1) {
+      const pathArr = path.split('.');
+      let pathTemp = unserializeDataPool;
+
+      for( let j = 0; j < pathArr.length; j += 1) {
+        pathTemp[pathArr[j]] = {
+          ...pathTemp[pathArr[j]],
+          ...(j === pathArr.length - 1 ? unserializeDataPool[path] : {})
+        }
+        pathTemp = pathTemp[pathArr[j]];
+      }
+    }
+  })
+
+  let temp = unserializeDataPool[chain[0]];
   for (let i = 1; i < chain.length; i += 1) {
     if (undefined === temp) {
       return undefined;
@@ -168,7 +188,6 @@ function genrateDynamicEffectsBody(schemaObj, $, { setFieldState, getFieldState 
 
       if (expressionStr) {
         const complieResult = precomplieExpression(expressionStr);
-
         return {
           subscribeNames: complieResult.map(({subscribeName}) => subscribeName),
           subscribeFunc: (fieldStateMap) => {
@@ -177,8 +196,13 @@ function genrateDynamicEffectsBody(schemaObj, $, { setFieldState, getFieldState 
             const replaceRegularExpress = new RegExp(`(${expressionStrPieces.join('|')})`, 'g');
 
             const executableExpression = expressionStr.replace(replaceRegularExpress, ($0, $1) => {
-              const [, ...chain] = $1.split('.'); // chain without root
-              return getValueByChain(chain.reverse(), fieldStateMap);
+              const [, stateName, ...chain] = $1.split('.'); // chain without root
+              const chainResult = getValueByChain(chain.concat(stateName), fieldStateMap);
+              if (typeof chainResult === 'string') {
+                return `\"${chainResult}\"`
+              } else {
+                return chainResult
+              }
             });
             let expressionResult;
             try {
