@@ -6,18 +6,18 @@ import { isEmpty } from '@uform/shared';
 import { Schema } from '../shared/schema'
 
 // static configurations
-const EXPRESSION_OPERATORS = [
-  '!', '=', '==', '===', '!=', '!==', '&', '&&', '?', ':', '>', '<', '>=', '<=', // logical operators
-  '/', '*', '+', '-', '%' // arithmetic operators
-]
+// const EXPRESSION_OPERATORS = [
+//   '!', '=', '==', '===', '!=', '!==', '&', '&&', '?', ':', '>', '<', '>=', '<=', // logical operators
+//   '/', '*', '+', '-', '%' // arithmetic operators
+// ]
 
 // transfer into RegExp obj
-const EXPRESSION_ILLEGAL_TEST = (() => {
-  let ruleBody = EXPRESSION_OPERATORS.map((r) => {
-    return `\\s*\\${r}\\s*`;
-  })
-  return new RegExp(`(${ruleBody.join('|')})`, 'g');
-})()
+// const EXPRESSION_ILLEGAL_TEST = (() => {
+//   let ruleBody = EXPRESSION_OPERATORS.map((r) => {
+//     return `\\s*\\${r}\\s*`;
+//   })
+//   return new RegExp(`(${ruleBody.join('|')})`, 'g');
+// })()
 
 // current setting: one string only allow one expression
 const EXPRESSION_SIGN = {
@@ -164,10 +164,7 @@ const getAllSubscribedState = (getFieldState, subscribeNames) => {
   return Promise.all(promises).then((fieldStateMapPieces) => {
     let result = {};
     fieldStateMapPieces.forEach((fieldStateMapPiece) => {
-      result = {
-        ...result,
-        ...fieldStateMapPiece
-      }
+      Object.assign(result, fieldStateMapPiece)
     })
     return result
   }).catch((e) => {
